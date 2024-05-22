@@ -1,6 +1,7 @@
 package org.thu.currencyconverter;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -102,8 +103,9 @@ public class MainActivity extends AppCompatActivity {
         }
         );
 
-        // Specify the layout to use when the list of choices appears.0
+        // Specify the layout to use when the l²ist of choices appears.0
         //adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
 
     }
 
@@ -114,14 +116,15 @@ public class MainActivity extends AppCompatActivity {
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.my_menu_entry:
+        Intent detailsIntent = new Intent(MainActivity.this, CurrencyListActivity.class);
+        if (item.getItemId() == R.id.my_menu_entry) {
                 Log.i("AppBarExample", "Yes, you clicked!");
-                return true;;
-            default:
+                startActivity(detailsIntent);
+                return true;}
+            else
                 return super.onOptionsItemSelected(item);
         }
-    }
-
 
 }
+
+
