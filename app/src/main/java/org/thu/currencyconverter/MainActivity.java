@@ -16,8 +16,10 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
+import androidx.core.view.MenuItemCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -98,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     double value = Double.parseDouble(inputVal.getText().toString());
                     double result = obj.convert(value, inputCurrencyName,outputCurrencyName);
                     outputVal.setText(String.format("%.2f", result));
+                    setShareText("Conversion result: " + String.valueOf(result));
                 }
             }
         }
@@ -109,10 +112,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    MenuItem shareItem;
+    ShareActionProvider act;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.my_menu, menu);
+         shareItem = menu.findItem(R.id.action_share);
+         act = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+        setShareText(null);
         return true;
+    }
+    private void setShareText(String text) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        if (text != null) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+        }
+        act.setShareIntent(shareIntent);
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

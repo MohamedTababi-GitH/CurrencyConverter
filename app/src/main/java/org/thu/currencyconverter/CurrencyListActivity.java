@@ -28,6 +28,7 @@ public class CurrencyListActivity extends AppCompatActivity {
             tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
         }
 
+
         CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
         tempList.toArray(tempArray);
 
@@ -38,7 +39,9 @@ public class CurrencyListActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent detailsIntent = new Intent(CurrencyListActivity.this, CurrencyListActivity.class);
+                CurrencyListEntry selectedEntry = (CurrencyListEntry)adapter.getItem(i);
+                Intent detailsIntent = new Intent(CurrencyListActivity.this, MapActivity.class);
+                detailsIntent.putExtra("capital", obj.getCapital(selectedEntry.name));
                 startActivity(detailsIntent);
             }
         });

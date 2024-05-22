@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -39,6 +41,8 @@ public class MapActivity extends AppCompatActivity {
             return insets;
         });*/
 
+        GeoPoints[] pointsDB = GeoPoints.getPointsDB();
+
         MapView         mMapView;
         MapController   mMapController;
         mMapView = (MapView) findViewById(R.id.osmmap);
@@ -46,8 +50,28 @@ public class MapActivity extends AppCompatActivity {
         mMapController = (MapController) mMapView.getController();
 
 
-        mMapController.setZoom(13);
-        GeoPoint gPt = new GeoPoint(48.8566, 2.3522);
+        mMapController.setZoom(17);
+
+
+        String capital = (String)getIntent().getSerializableExtra("capital");
+
+        double longitude = 0;
+        double altitude = 0;
+        for (GeoPoints pt : pointsDB) {
+            if (pt.name.equals(capital)){
+                longitude = pt.longitude;
+                altitude = pt.altitude;
+                Log.d("MyApp", "Longitude: " + longitude + ", Altitude: " + altitude);
+            }
+        }
+        GeoPoint gPt = new GeoPoint(altitude, longitude);
         mMapController.setCenter(gPt);
+
+        // Add a marker
+        Marker marker = new Marker(mMapView);
+        marker.setPosition(gPt);
+        marker.setTitle(capital);
+
+        mMapView.getOverlays().add(marker);
     }
 }
