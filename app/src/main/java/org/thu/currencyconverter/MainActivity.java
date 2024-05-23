@@ -3,6 +3,7 @@ package org.thu.currencyconverter;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy (policy);
 
         /*ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -111,13 +114,13 @@ public class MainActivity extends AppCompatActivity {
 
                 String inputCurrencyName = currencyEntry.getName();
                 String outputCurrencyName = outputEntry.getName();
-                Log.d("hi",inputCurrencyName);
                if (inputVal != null && !inputVal.getText().toString().isEmpty()){
                     double value = Double.parseDouble(inputVal.getText().toString());
                     double result = obj.convert(value, inputCurrencyName,outputCurrencyName);
                     outputVal.setText(String.format("%.2f", result));
                     setShareText("Conversion result: " + String.valueOf(result));
                 }
+
             }
         }
         );
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         // Specify the layout to use when the l²ist of choices appears.0
         //adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        updateCurrencies();
+
     }
 
     String type;
@@ -139,12 +142,17 @@ public void updateCurrencies(){
         // B) Analyze JSON and extract information
         // ...
         JSONObject root = new JSONObject(responseBody);
-        JSONArray searchResults = root.getJSONArray("aud");
-        for (int i = 0; i<searchResults.length(); i++) {
+
+        for (String currency : currencyList) {
+            JSONObject searchResults = root.getJSONObject(currency.toLowerCase());
+            double searchEntry = searchResults.getDouble("rate");
+            obj.setExchangeRate(currency, searchEntry);
+        }
+
+        /*for (int i = 0; i<searchResults.length(); i++) {
             JSONObject searchEntry = searchResults.getJSONObject(i);
             type = searchEntry.getString("rate");
-        }
-        Log.d("rate from json", type);
+        }*/
 
     } catch (IOException exception) {
         Log.e("Refresher", "Can't refresh from DB");
@@ -180,7 +188,10 @@ public void updateCurrencies(){
                 Log.i("AppBarExample", "Yes, you clicked!");
                 startActivity(detailsIntent);
                 return true;}
-            else
+            else if (item.getItemId() == R.id.my_menu_refresh_rates) {
+            Log.i("AppBarExample2", "Yes, you refreshed!");
+            updateCurrencies();
+        }
                 return super.onOptionsItemSelected(item);
         }
 
