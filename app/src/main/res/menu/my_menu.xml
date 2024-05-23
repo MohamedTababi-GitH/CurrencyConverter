@@ -2,10 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:title="Currency List"
-        android:id="@+id/my_menu_entry"
+        android:id="@+id/my_menu_currency_list"
         />
     <item android:id="@+id/action_share"
         android:title="Share"
         app:showAsAction="ifRoom"
         app:actionProviderClass="androidx.appcompat.widget.ShareActionProvider" />
+    <item android:title="Refresh rates"
+        android:id="@+id/my_menu_refresh_rates"
+        />
 </menu>

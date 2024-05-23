@@ -29,7 +29,7 @@ public class GeoPoints {
             new GeoPoints("Canberra", 48.8575, 2.3514),
             new GeoPoints("Brasilia", -15.8267, -47.8825),
             new GeoPoints("Ottawa", 45.4215, -75.6903),
-            new GeoPoints("Beijing", 48.8575, 2.3514),
+            new GeoPoints("Beijing", 39.9042, 116.4074),
             new GeoPoints("Hong Kong", 22.3193, 114.1694),
             new GeoPoints("Jakarta", -6.2088, 106.8456),
             new GeoPoints("Jerusalem", 31.7683, 35.2130),

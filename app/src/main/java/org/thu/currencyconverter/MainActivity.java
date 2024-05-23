@@ -23,9 +23,27 @@ import androidx.core.view.MenuItemCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
+
+
+
+    private MenuItem shareItem;
+    private ShareActionProvider act;
+    // Get the currency list from the ExchangeRateDatabase
+    ExchangeRateDatabase obj = new ExchangeRateDatabase();
+    String[] currencyList = obj.getCurrencies();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +59,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });*/
-        // Get the currency list from the ExchangeRateDatabase
-        ExchangeRateDatabase obj = new ExchangeRateDatabase();
-        String[] currencyList = obj.getCurrencies();
+
 
         // Spinners
         Spinner inputspinner = (Spinner) findViewById(R.id.input_spinner);
@@ -109,11 +125,38 @@ public class MainActivity extends AppCompatActivity {
         // Specify the layout to use when the l²ist of choices appears.0
         //adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-
+        updateCurrencies();
     }
 
-    MenuItem shareItem;
-    ShareActionProvider act;
+    String type;
+    private final OkHttpClient client = new OkHttpClient();
+    String queryString = "https://www.floatrates.com/daily/eur.json";
+public void updateCurrencies(){
+    try {
+        Request request = new Request.Builder().url(queryString).build();
+        Response response = client.newCall(request).execute();
+        String responseBody = response.body().string();
+        // B) Analyze JSON and extract information
+        // ...
+        JSONObject root = new JSONObject(responseBody);
+        JSONArray searchResults = root.getJSONArray("aud");
+        for (int i = 0; i<searchResults.length(); i++) {
+            JSONObject searchEntry = searchResults.getJSONObject(i);
+            type = searchEntry.getString("rate");
+        }
+        Log.d("rate from json", type);
+
+    } catch (IOException exception) {
+        Log.e("Refresher", "Can't refresh from DB");
+        exception.printStackTrace();
+    }
+    catch (JSONException exception) {
+        Log.e("OmdbViewer", "Error parsing JSON.");
+        exception.printStackTrace();
+    }
+
+}
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.my_menu, menu);
@@ -133,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent detailsIntent = new Intent(MainActivity.this, CurrencyListActivity.class);
-        if (item.getItemId() == R.id.my_menu_entry) {
+        if (item.getItemId() == R.id.my_menu_currency_list) {
                 Log.i("AppBarExample", "Yes, you clicked!");
                 startActivity(detailsIntent);
                 return true;}

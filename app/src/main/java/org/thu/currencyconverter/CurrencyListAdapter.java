@@ -47,7 +47,8 @@ public class CurrencyListAdapter extends BaseAdapter {
         }
 
         TextView rate = convertView.findViewById(R.id.currency_item_rate_view);
-        rate.setText(String.valueOf(entry.exchangeRate));
+        rate.setText("rate: " + String.valueOf(entry.exchangeRate));
+        //rate.setText("rate: " +String.format("%.2f", entry.exchangeRate));
 
         TextView textView = convertView.findViewById(R.id.currency_item_text_view);
         textView.setText(entry.name);
