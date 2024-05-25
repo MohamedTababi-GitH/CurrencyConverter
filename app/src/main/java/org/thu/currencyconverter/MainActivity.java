@@ -42,7 +42,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    CurrencyUpdateRunnable runnable;
     private MenuItem shareItem;
     private ShareActionProvider act;
 
@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         inputspinner = (Spinner) findViewById(R.id.input_spinner);
         outputspinner = (Spinner) findViewById(R.id.output_spinner);
 
-
         // Filling the arrays and setting adapter
         for (String currency : currencyList) {
             tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
@@ -101,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         // Set adapters to spinners
         inputspinner.setAdapter(adapter2);
         outputspinner.setAdapter(adapter2);
+        runnable = new CurrencyUpdateRunnable(this, inputspinner, outputspinner);
 
 
         // Button onclick method convert
@@ -126,73 +126,6 @@ public class MainActivity extends AppCompatActivity {
                                           }
                                       }
         );
-
-    }
-
-    private final OkHttpClient client = new OkHttpClient();
-    String queryString = "https://www.floatrates.com/daily/eur.json";
-
-    // Method to updates currencies for JSON file
-
-    public void updateCurrencies() {
-        try {
-            Request request = new Request.Builder().url(queryString).build();
-            Response response = client.newCall(request).execute();
-            String responseBody = response.body().string();
-
-            JSONObject root = new JSONObject(responseBody);
-
-             //Preferences
-            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-
-            for (String currency : currencyList) {
-                // Convert the currency to lowercase to match the JSON keys
-                String currencyKey = currency.toLowerCase();
-
-                // Check if the JSON object contains the key for the currency
-                if (root.has(currencyKey)) {
-                    JSONObject searchResults = root.getJSONObject(currencyKey);
-                    double searchEntry = searchResults.getDouble("rate");
-                    obj.setExchangeRate(currency, searchEntry);
-                    editor.putFloat(currency, (float) searchEntry);
-                } else {
-                    System.out.println("Currency " + currency + " not found in JSON.");
-                }
-            }
-            for (int i = 0; i < tempList.size(); i++) {
-                CurrencyListEntry entry = tempList.get(i);
-                String currency = entry.getName();
-                float storedRate = prefs.getFloat(currency, -1);
-                if (storedRate != -1) {
-                    // Update the exchange rate for the currency
-                    obj.setExchangeRate(currency, storedRate);
-                    // Update the entry in the tempList
-                    tempList.set(i, new CurrencyListEntry(currency, storedRate));
-                }
-            }
-            adapter2.notifyDataSetChanged();
-            editor.apply(); // Apply changes to SharedPreferences
-            tempList = new ArrayList<>();
-            // Filling the arrays and setting adapter
-            for (String currency : currencyList) {
-                tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
-            }
-            CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
-            tempList.toArray(tempArray);
-            adapter2 = new CurrencyListAdapter(tempArray);
-
-
-            // Set adapters to spinners
-            inputspinner.setAdapter(adapter2);
-            outputspinner.setAdapter(adapter2);
-        } catch (IOException exception) {
-            Log.e("Refresher", "Can't refresh from DB");
-            exception.printStackTrace();
-        } catch (JSONException exception) {
-            Log.e("OmdbViewer", "Error parsing JSON.");
-            exception.printStackTrace();
-        }
 
     }
 
@@ -228,6 +161,12 @@ public class MainActivity extends AppCompatActivity {
         int outputSpinnerPos = outputspinner.getSelectedItemPosition();
         editor.putInt("output_spinner_position", outputSpinnerPos);
 
+        for (String currency : currencyList) {
+            // Convert the currency to lowercase to match the JSON keys
+            String currencyKey = currency.toLowerCase();
+                editor.putFloat(currency, (float) obj.getExchangeRate(currency));
+            }
+
         editor.apply();
     }
 
@@ -245,26 +184,24 @@ public class MainActivity extends AppCompatActivity {
         outputspinner.setSelection(outputSpinnerPos);
 
 
-
+        tempList.clear();
         // Load stored exchange rates from SharedPreferences
         //SharedPreferences prefsUpdte = getPreferences(Context.MODE_PRIVATE);
-        /*for (String currency : currencyList) {
+        for (String currency : currencyList) {
             float storedRate = prefs.getFloat(currency, -1);
             if (storedRate != -1) {
-                obj.setExchangeRate(currency, storedRate);
+                //obj.setExchangeRate(currency, storedRate);
+                tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
             }
-        }*/
-        // Set adapters to spinners using the updated exchange rates
-       /* tempList.clear();
-        for (String currency : currencyList) {
-            tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
         }
+
         CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
         tempList.toArray(tempArray);
-        adapter2 = new CurrencyListAdapter(tempArray);
-        inputspinner.setAdapter(adapter2);
-        outputspinner.setAdapter(adapter2);*/
-
+        //adapter2 = new CurrencyListAdapter(tempArray);
+        //inputspinner.setAdapter(adapter2);
+        //outputspinner.setAdapter(adapter2);
+        // Notify the adapter that the data has changed
+        //adapter2.notifyDataSetChanged();
 
     }
 
@@ -279,11 +216,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.my_menu_refresh_rates) {
             Log.i("AppBarExample2", "Yes, you refreshed!");
-            updateCurrencies();
-
-            // Trying to update the spinner after data refreshed
-            adapter2.notifyDataSetChanged();
-
+            new Thread(runnable).start();
         }
 
         return super.onOptionsItemSelected(item);
