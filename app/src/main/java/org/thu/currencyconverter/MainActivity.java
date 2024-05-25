@@ -1,7 +1,9 @@
 package org.thu.currencyconverter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -31,6 +33,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -41,13 +45,17 @@ public class MainActivity extends AppCompatActivity {
 
     private MenuItem shareItem;
     private ShareActionProvider act;
-    // Get the currency list from the ExchangeRateDatabase
+
+    // Instance of ExchangeRateDatabase
     ExchangeRateDatabase obj = new ExchangeRateDatabase();
     String[] currencyList = obj.getCurrencies();
     CurrencyListAdapter adapter2;
     // Spinners
     Spinner inputspinner;
     Spinner outputspinner;
+    ArrayList<CurrencyListEntry> tempList = new ArrayList<>();
+    TextView inputVal;
+    TextView outputVal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,30 +75,27 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
 
-
-
-        // Button
+        inputVal = (TextView) findViewById(R.id.input_val);
+        outputVal = (TextView) findViewById(R.id.output_val);
+        // Conversion Button
         Button convertbtn = (Button) findViewById(R.id.convert_btn);
 
-
+        // Input and Output values
         TextView inputVal = (TextView) findViewById(R.id.input_val);
         TextView outputVal = (TextView) findViewById(R.id.output_val);
 
+        // Spinner lists
         inputspinner = (Spinner) findViewById(R.id.input_spinner);
         outputspinner = (Spinner) findViewById(R.id.output_spinner);
 
 
-        ArrayList<CurrencyListEntry> tempList = new ArrayList<>();
+        // Filling the arrays and setting adapter
         for (String currency : currencyList) {
             tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
         }
-
         CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
         tempList.toArray(tempArray);
-
         adapter2 = new CurrencyListAdapter(tempArray);
-
-
 
 
         // Set adapters to spinners
@@ -122,24 +127,24 @@ public class MainActivity extends AppCompatActivity {
                                       }
         );
 
-        // Specify the layout to use when the l²ist of choices appears.0
-        //adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-
     }
 
-    String type;
     private final OkHttpClient client = new OkHttpClient();
     String queryString = "https://www.floatrates.com/daily/eur.json";
+
+    // Method to updates currencies for JSON file
 
     public void updateCurrencies() {
         try {
             Request request = new Request.Builder().url(queryString).build();
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
-            // B) Analyze JSON and extract information
-            // ...
+
             JSONObject root = new JSONObject(responseBody);
+
+             //Preferences
+            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
 
             for (String currency : currencyList) {
                 // Convert the currency to lowercase to match the JSON keys
@@ -150,16 +155,37 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject searchResults = root.getJSONObject(currencyKey);
                     double searchEntry = searchResults.getDouble("rate");
                     obj.setExchangeRate(currency, searchEntry);
+                    editor.putFloat(currency, (float) searchEntry);
                 } else {
                     System.out.println("Currency " + currency + " not found in JSON.");
                 }
             }
+            for (int i = 0; i < tempList.size(); i++) {
+                CurrencyListEntry entry = tempList.get(i);
+                String currency = entry.getName();
+                float storedRate = prefs.getFloat(currency, -1);
+                if (storedRate != -1) {
+                    // Update the exchange rate for the currency
+                    obj.setExchangeRate(currency, storedRate);
+                    // Update the entry in the tempList
+                    tempList.set(i, new CurrencyListEntry(currency, storedRate));
+                }
+            }
+            adapter2.notifyDataSetChanged();
+            editor.apply(); // Apply changes to SharedPreferences
+            tempList = new ArrayList<>();
+            // Filling the arrays and setting adapter
+            for (String currency : currencyList) {
+                tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
+            }
+            CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
+            tempList.toArray(tempArray);
+            adapter2 = new CurrencyListAdapter(tempArray);
 
-        /*for (int i = 0; i<searchResults.length(); i++) {
-            JSONObject searchEntry = searchResults.getJSONObject(i);
-            type = searchEntry.getString("rate");
-        }*/
 
+            // Set adapters to spinners
+            inputspinner.setAdapter(adapter2);
+            outputspinner.setAdapter(adapter2);
         } catch (IOException exception) {
             Log.e("Refresher", "Can't refresh from DB");
             exception.printStackTrace();
@@ -189,6 +215,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        String input = inputVal.getText().toString();
+        editor.putString("input value", input);
+
+        int inputSpinnerPos = inputspinner.getSelectedItemPosition();
+        editor.putInt("input_spinner_position", inputSpinnerPos);
+
+        int outputSpinnerPos = outputspinner.getSelectedItemPosition();
+        editor.putInt("output_spinner_position", outputSpinnerPos);
+
+        editor.apply();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        String input = prefs.getString("input value", "");
+        inputVal.setText(input);
+        int inputSpinnerPos = prefs.getInt("input_spinner_position", 0);
+        inputspinner.setSelection(inputSpinnerPos);
+
+        int outputSpinnerPos = prefs.getInt("output_spinner_position", 0);
+        outputspinner.setSelection(outputSpinnerPos);
+
+
+
+        // Load stored exchange rates from SharedPreferences
+        //SharedPreferences prefsUpdte = getPreferences(Context.MODE_PRIVATE);
+        /*for (String currency : currencyList) {
+            float storedRate = prefs.getFloat(currency, -1);
+            if (storedRate != -1) {
+                obj.setExchangeRate(currency, storedRate);
+            }
+        }*/
+        // Set adapters to spinners using the updated exchange rates
+       /* tempList.clear();
+        for (String currency : currencyList) {
+            tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
+        }
+        CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
+        tempList.toArray(tempArray);
+        adapter2 = new CurrencyListAdapter(tempArray);
+        inputspinner.setAdapter(adapter2);
+        outputspinner.setAdapter(adapter2);*/
+
+
+    }
+
+
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent detailsIntent = new Intent(MainActivity.this, CurrencyListActivity.class);
         if (item.getItemId() == R.id.my_menu_currency_list) {
@@ -198,7 +280,10 @@ public class MainActivity extends AppCompatActivity {
         } else if (item.getItemId() == R.id.my_menu_refresh_rates) {
             Log.i("AppBarExample2", "Yes, you refreshed!");
             updateCurrencies();
+
+            // Trying to update the spinner after data refreshed
             adapter2.notifyDataSetChanged();
+
         }
 
         return super.onOptionsItemSelected(item);
