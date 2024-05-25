@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.ShareActionProvider;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +52,9 @@ public class CurrencyUpdateRunnable implements Runnable{
             @Override
             public void run() {
                 inputspinner.setAdapter(adapter2);
-                outputspinner.setAdapter(adapter2);
+                outputspinner.setAdapter(adapter2);;
+                Toast toast = Toast.makeText(context, "Currencies Update Finished!", Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
         isRefreshing = false;
