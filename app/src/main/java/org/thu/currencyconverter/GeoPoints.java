@@ -1,14 +1,12 @@
 package org.thu.currencyconverter;
 
 import org.osmdroid.util.GeoPoint;
-
-import java.util.ArrayList;
-
 public class GeoPoints {
     String name;
     Double longitude;
     Double altitude;
 
+    // here is a database of all capitals with their corresponding longitude and altitude for the map activity
     static GeoPoints[] pointsDB = {
             new GeoPoints("Bruxelles", 50.85500, 4.35123),
             new GeoPoints("Washington", 38.9072, -77.0369),
@@ -49,10 +47,6 @@ public class GeoPoints {
         this.altitude = altitude;
         this.longitude = longitude;
     }
-    public GeoPoint getGeoPoint() {
-        return new GeoPoint(this.altitude, this.longitude);
-    }
-
     public static GeoPoints[] getPointsDB() {
         return pointsDB;
     }

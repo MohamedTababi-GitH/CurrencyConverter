@@ -5,19 +5,8 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -35,24 +24,22 @@ public class MapActivity extends AppCompatActivity {
         Context context = this.getApplicationContext();
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         setContentView(R.layout.activity_map);
-        /*ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });*/
 
         GeoPoints[] pointsDB = GeoPoints.getPointsDB();
 
+        // I used open street map library "osmdroid" to implement the map activity
         MapView         mMapView;
         MapController   mMapController;
-        mMapView = (MapView) findViewById(R.id.osmmap);
+        mMapView = findViewById(R.id.osmmap);
         mMapView.setTileSource(TileSourceFactory.MAPNIK);
+
+        // tap the screen to reveal the map controls
         mMapController = (MapController) mMapView.getController();
 
-
+        // setting the map zoom level
         mMapController.setZoom(17);
 
-
+        // retrieving the capital from the previous activity intent
         String capital = (String)getIntent().getSerializableExtra("capital");
 
         double longitude = 0;
@@ -67,7 +54,7 @@ public class MapActivity extends AppCompatActivity {
         GeoPoint gPt = new GeoPoint(altitude, longitude);
         mMapController.setCenter(gPt);
 
-        // Add a marker
+        // Adding a marker
         Marker marker = new Marker(mMapView);
         marker.setPosition(gPt);
         marker.setTitle(capital);

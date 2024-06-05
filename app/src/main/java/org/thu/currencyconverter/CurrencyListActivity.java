@@ -2,15 +2,10 @@ package org.thu.currencyconverter;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 public class CurrencyListActivity extends AppCompatActivity {
 
@@ -28,23 +23,20 @@ public class CurrencyListActivity extends AppCompatActivity {
             tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
         }
 
-
         CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
         tempList.toArray(tempArray);
-
+        // defining the adapter and setting it the currency list view
         CurrencyListAdapter adapter = new CurrencyListAdapter(tempArray);
-        ListView listView = (ListView)findViewById(R.id.currency_list_view);
+        ListView listView = findViewById(R.id.currency_list_view);
         listView.setAdapter(adapter);
 
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                CurrencyListEntry selectedEntry = (CurrencyListEntry)adapter.getItem(i);
-                Intent detailsIntent = new Intent(CurrencyListActivity.this, MapActivity.class);
-                detailsIntent.putExtra("capital", obj.getCapital(selectedEntry.name));
-                startActivity(detailsIntent);
-            }
+        // onClick method for list view items to open the corresponding map activity
+        listView.setOnItemClickListener((adapterView, view, i, l) -> {
+            CurrencyListEntry selectedEntry = (CurrencyListEntry)adapter.getItem(i);
+            Intent detailsIntent = new Intent(CurrencyListActivity.this, MapActivity.class);
+            // sending the capital name as an extra info to the intent
+            detailsIntent.putExtra("capital", obj.getCapital(selectedEntry.name));
+            startActivity(detailsIntent);
         });
     }
 }
