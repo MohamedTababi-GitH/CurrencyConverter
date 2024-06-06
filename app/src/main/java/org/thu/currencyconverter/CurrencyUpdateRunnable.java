@@ -21,7 +21,6 @@ public class CurrencyUpdateRunnable implements Runnable{
     CurrencyListAdapter adapter;
     Spinner inputspinner;
     Spinner outputspinner;
-    ArrayList<CurrencyListEntry> tempList = new ArrayList<>();
     Context context;
 
     public CurrencyUpdateRunnable(Context context, Spinner inputspinner, Spinner outputspinner) {
@@ -41,6 +40,7 @@ public class CurrencyUpdateRunnable implements Runnable{
         updateCurrencies();
 
         ((MainActivity) context).runOnUiThread(() -> {
+            adapter.notifyDataSetChanged();
             inputspinner.setAdapter(adapter);
             outputspinner.setAdapter(adapter);
             Toast toast = Toast.makeText(context, "Currencies Update Finished!", Toast.LENGTH_SHORT);
@@ -70,14 +70,14 @@ public class CurrencyUpdateRunnable implements Runnable{
                         System.out.println("Currency " + currency + " not found in JSON.");
                     }
                 }
-                tempList = new ArrayList<>();
+
                 // Filling the arrays and setting adapter
-                for (String currency : currencyList) {
-                    tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
+                for (CurrencyListEntry entry : CurrencyListAdapter.data) {
+                    entry.setListEntryRate(obj.getExchangeRate(entry.name));
                 }
-                CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
-                tempList.toArray(tempArray);
-                adapter = new CurrencyListAdapter(tempArray);
+                adapter = new CurrencyListAdapter(CurrencyListAdapter.data);
+                adapter.notifyDataSetChanged();
+
 
             } catch (IOException exception) {
                 Log.e("Refresher", "Can't refresh from DB");

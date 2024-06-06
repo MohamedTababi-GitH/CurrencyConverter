@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
         // Toolbar setup
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -56,11 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Filling the array with currency list names and setting adapter
         for (String currency : currencyList) {
-            tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
+            CurrencyListAdapter.data.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
         }
-        CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
-        tempList.toArray(tempArray);
-        adapter = new CurrencyListAdapter(tempArray);
+        adapter = new CurrencyListAdapter(CurrencyListAdapter.data);
 
         // Setting adapters to spinners
         inputspinner.setAdapter(adapter);
@@ -153,22 +150,13 @@ public class MainActivity extends AppCompatActivity {
         int outputSpinnerPos = prefs.getInt("output_spinner_position", 0);
         outputspinner.setSelection(outputSpinnerPos);
 
-        tempList.clear();
-
-        /*// Load stored exchange rates from SharedPreferences
-        for (String currency : currencyList) {
-            float storedRate = prefs.getFloat(currency, -1);
-            if (storedRate != -1) {
+        // Load stored exchange rates from SharedPreferences
+         for (CurrencyListEntry entry : CurrencyListAdapter.data) {
+            float storedRate = prefs.getFloat(entry.name, 0);
                 // using the exchange rates stored in preferences
-                tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
-            }
+                entry.setListEntryRate(storedRate);
         }
-        CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
-        tempList.toArray(tempArray);
-        adapter = new CurrencyListAdapter(tempArray);
-        inputspinner.setAdapter(adapter);
-        outputspinner.setAdapter(adapter);
-        adapter.notifyDataSetChanged();*/
+        adapter.notifyDataSetChanged();
     }
 
     // Method for menu items selection

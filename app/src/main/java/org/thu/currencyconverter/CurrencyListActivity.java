@@ -14,20 +14,13 @@ public class CurrencyListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_currency_list);
 
-        // Get the currency list from the ExchangeRateDatabase
+        // Getting an instance of the ExchangeRateDatabase
         ExchangeRateDatabase obj = new ExchangeRateDatabase();
-        String[] currencyList = obj.getCurrencies();
 
-        ArrayList<CurrencyListEntry> tempList = new ArrayList<>();
-        for (String currency : currencyList) {
-            tempList.add(new CurrencyListEntry(currency, obj.getExchangeRate(currency)));
-        }
-
-        CurrencyListEntry[] tempArray = new CurrencyListEntry[tempList.size()];
-        tempList.toArray(tempArray);
-        // defining the adapter and setting it the currency list view
-        CurrencyListAdapter adapter = new CurrencyListAdapter(tempArray);
+        // defining the adapter with the static shared data and setting it the currency list view
+        CurrencyListAdapter adapter = new CurrencyListAdapter(CurrencyListAdapter.data);
         ListView listView = findViewById(R.id.currency_list_view);
+        adapter.notifyDataSetChanged();
         listView.setAdapter(adapter);
 
         // onClick method for list view items to open the corresponding map activity

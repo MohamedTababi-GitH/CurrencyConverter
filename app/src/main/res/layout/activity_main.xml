@@ -22,80 +22,102 @@
         app:titleTextColor="@android:color/white"
         />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linear_one"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="From value in"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/input_spinner"
-        android:layout_width="359dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="88dp"
-        android:minHeight="48dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <TextView
+            android:id="@+id/textViewInput"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:text="From value in"
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/input_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
     <EditText
         android:id="@+id/input_val"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="12dp"
         android:hint="@string/hint"
         android:inputType="numberDecimal"
         android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/linear_one" />
 
-    <TextView
-        android:id="@+id/textidk"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linear_two"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="28dp"
-        android:text="To value in"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_val" />
-
-    <Spinner
-        android:id="@+id/output_spinner"
-        android:layout_width="338dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:minHeight="48dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/textidk"
-        app:layout_constraintTop_toBottomOf="@+id/input_val" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/input_val">
+
+        <TextView
+            android:id="@+id/TextViewOutput"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:text="To value in"
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_val" />
+
+        <Spinner
+            android:id="@+id/output_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/TextViewOutput"
+            app:layout_constraintTop_toBottomOf="@+id/input_val" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/convert_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="24dp"
         android:text="Calculate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textidk" />
+        app:layout_constraintTop_toBottomOf="@+id/linear_two" />
 
     <TextView
         android:id="@+id/output_val"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:text="0.00"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/output_spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/linear_two" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

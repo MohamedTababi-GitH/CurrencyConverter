@@ -2,7 +2,10 @@ package org.thu.currencyconverter;
 
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 public class CurrencyListEntry {
+
     public String name;
     public double exchangeRate;
     public ImageView img;
@@ -13,5 +16,9 @@ public class CurrencyListEntry {
 
     public String getName() {
         return name;
+    }
+
+    public void setListEntryRate(double rate){
+        this.exchangeRate = rate;
     }
 }

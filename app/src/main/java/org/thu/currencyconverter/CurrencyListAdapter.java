@@ -8,18 +8,21 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class CurrencyListAdapter extends BaseAdapter {
-    private CurrencyListEntry[] data;
-    public CurrencyListAdapter(CurrencyListEntry[] data) {
-        this.data = data;
+    // static data to pass to the adapter
+    public static ArrayList<CurrencyListEntry> data = new ArrayList<>();
+    public CurrencyListAdapter(ArrayList<CurrencyListEntry> data) {
+        CurrencyListAdapter.data = data;
     }
     @Override
     public int getCount() {
-        return data.length;
+        return data.size();
     }
     @Override
     public Object getItem(int position) {
-        return data[position];
+        return data.get(position);
     }
     @Override
     public long getItemId(int position) {
@@ -28,7 +31,7 @@ public class CurrencyListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Context context = parent.getContext();
-        CurrencyListEntry entry = data[position];
+        CurrencyListEntry entry = data.get(position);
 
         if (convertView == null){
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
