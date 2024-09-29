@@ -1,1 +1,1 @@
-A Java mobile app that converts between currencies and uses an API to fetch currency rates based on values from the European Central Bank.
+The app provides basic conversion functionality as well as a list of all currencies and their most up-to-date rates compared to the euro. Clicking on the currency launches a map on the corresponding country location.
